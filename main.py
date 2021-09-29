@@ -7,6 +7,7 @@ from kivy.app import App
 from kivy.core.window import Window
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
+from kivy.uix.slider import Slider
 
 from pidev.MixPanel import MixPanel
 from pidev.kivy.PassCodeScreen import PassCodeScreen
@@ -48,6 +49,7 @@ class MainScreen(Screen):
     Class to handle the main screen and its associated touch events
     """
     count = 0
+    motor_label = "Off"
     def pressed(self):
         """
         Function called on button touch event for button with id: testButton
@@ -67,6 +69,11 @@ class MainScreen(Screen):
         :return: None
         """
         SCREEN_MANAGER.current = 'passCode'
+    def motor_change(self):
+        if self.motor_label.text == "off":
+            self.motor_label.text = "on"
+        else:
+            self.motor_label.text = "off"
 
 
 class AdminScreen(Screen):
@@ -143,3 +150,22 @@ if __name__ == "__main__":
     # send_event("Project Initialized")
     # Window.fullscreen = 'auto'
     ProjectNameGUI().run()
+
+# Slider:
+#         id: slider
+#         min: 0
+#         max: 100
+#         step: 1
+#         orientation: 'horizontal'
+#         center_y: root.height * 0.05
+#
+#     Label:
+#         text: str(slider.value)
+#         size_hint: None, None
+#         font_size: 30
+#         center_x: root.width * 0.05
+#         center_y: root.height * 0.05
+#         color: 1, 1, 1, 1
+#         bold: True
+#         outline_width: self.font_size * 0.1
+#         outline_color: 0, 0, 0
