@@ -26,6 +26,7 @@ MIXPANEL = MixPanel("Project Name", MIXPANEL_TOKEN)
 SCREEN_MANAGER = ScreenManager()
 MAIN_SCREEN_NAME = 'main'
 ADMIN_SCREEN_NAME = 'admin'
+PICTURE_SCREEN_NAME = 'picture'
 
 
 class ProjectNameGUI(App):
@@ -74,8 +75,15 @@ class MainScreen(Screen):
             self.motor_label.text = "on"
         else:
             self.motor_label.text = "off"
+    def picture_action(self):
+        SCREEN_MANAGER.transition.direction = 'left'
+        SCREEN_MANAGER.current = 'picture'
 
 
+class PictureScreen(Screen):
+    def picture_action(self):
+        SCREEN_MANAGER.transition.direction = 'right'
+        SCREEN_MANAGER.current = MAIN_SCREEN_NAME
 class AdminScreen(Screen):
     """
     Class to handle the AdminScreen and its functionality
@@ -124,7 +132,9 @@ Widget additions
 """
 
 Builder.load_file('main.kv')
+Builder.load_file('PictureScreen.kv')
 SCREEN_MANAGER.add_widget(MainScreen(name=MAIN_SCREEN_NAME))
+SCREEN_MANAGER.add_widget(PictureScreen(name=PICTURE_SCREEN_NAME))
 SCREEN_MANAGER.add_widget(PassCodeScreen(name='passCode'))
 SCREEN_MANAGER.add_widget(PauseScreen(name='pauseScene'))
 SCREEN_MANAGER.add_widget(AdminScreen(name=ADMIN_SCREEN_NAME))
