@@ -15,6 +15,8 @@ from pidev.kivy.PauseScreen import PauseScreen
 from pidev.kivy import DPEAButton
 from pidev.kivy import ImageButton
 from pidev.kivy.selfupdatinglabel import SelfUpdatingLabel
+from kivy.animation import Animation
+from kivy.uix.widget import Widget
 
 from datetime import datetime
 
@@ -84,6 +86,9 @@ class PictureScreen(Screen):
     def picture_action(self):
         SCREEN_MANAGER.transition.direction = 'right'
         SCREEN_MANAGER.current = MAIN_SCREEN_NAME
+    def animation(self):
+        anim = Animation(x=50,y=100, size=(800, 800), t='in_quad')
+        anim.start(self.imagebutton1)
 class AdminScreen(Screen):
     """
     Class to handle the AdminScreen and its functionality
