@@ -1,11 +1,15 @@
 import os
+from threading import Thread
+
 import kivy
-#os.environ['DISPLAY'] = ":0.0"
-#os.environ['KIVY_WINDOW'] = 'egl_rpi'
+os.environ['DISPLAY'] = ":0.0"
+os.environ['KIVY_WINDOW'] = 'egl_rpi'
+import pygame
 
 from kivy.app import App
 from kivy.core.window import Window
 from kivy.lang import Builder
+from kivy.properties import ObjectProperty
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.slider import Slider
 
@@ -17,8 +21,11 @@ from pidev.kivy import ImageButton
 from pidev.kivy.selfupdatinglabel import SelfUpdatingLabel
 from kivy.animation import Animation
 from kivy.uix.widget import Widget
-
+from pidev.Joystick import Joystick
 from datetime import datetime
+from time import sleep
+import itertools
+
 
 time = datetime
 
@@ -29,6 +36,7 @@ SCREEN_MANAGER = ScreenManager()
 MAIN_SCREEN_NAME = 'main'
 ADMIN_SCREEN_NAME = 'admin'
 PICTURE_SCREEN_NAME = 'picture'
+JOYSTICK_SCREEN_NAME = 'joystick'
 
 
 class ProjectNameGUI(App):
@@ -79,7 +87,7 @@ class MainScreen(Screen):
             self.motor_label.text = "off"
     def picture_action(self):
         SCREEN_MANAGER.transition.direction = 'left'
-        SCREEN_MANAGER.current = 'picture'
+        SCREEN_MANAGER.current = 'joystick'
 
 
 class PictureScreen(Screen):
@@ -130,6 +138,40 @@ class AdminScreen(Screen):
         :return: None
         """
         quit()
+class JoystickScreen(Screen):
+    def start_joy_thread(self):  # This should be inside the MainScreen Class
+        Thread(target=self.updatelabel).start()
+    buttons = [0, 1, 2, 3 ,4, 5, 6, 7, 8, 9, 10]
+    joystick1 = Joystick(0, False)
+    def updatelabel (self):
+        while True:
+            # for x in self.buttons:
+            #     if self.joystick1.get_button_state(x) == 1:
+            #         for y in self.buttons:
+            #             if self.joystick1.get_button_state(y) == 1:
+            #                 self.joystick_pressed.text = "pressed"
+            #                 break
+            #
+            #
+            #     else:
+            #         self.joystick_pressed.text = "not pressed"
+            # sleep(.1)
+            for combo in itertools.combinations(self.buttons, 3):
+                if self.joystick1.button_combo_check(combo):
+                            self.joystick_pressed.text = "pressed"
+                            break
+                else:
+                    self.joystick_pressed.text = "not pressed"
+            sleep(.1)
+            self.joystick_x.text = str(self.joystick1.get_both_axes()[0])
+            self.joystick_y.text = str(self.joystick1.get_both_axes()[1])
+            self.joystick_x.center_x += self.joystick1.get_both_axes()[0] * 100
+            self.joystick_y.center_y += self.joystick1.get_both_axes()[1] * 100
+            sleep(.1)
+    pass
+
+
+
 
 
 """
@@ -138,8 +180,10 @@ Widget additions
 
 Builder.load_file('main.kv')
 Builder.load_file('PictureScreen.kv')
+Builder.load_file('JoystickScreen.kv')
 SCREEN_MANAGER.add_widget(MainScreen(name=MAIN_SCREEN_NAME))
 SCREEN_MANAGER.add_widget(PictureScreen(name=PICTURE_SCREEN_NAME))
+SCREEN_MANAGER.add_widget(JoystickScreen(name=JOYSTICK_SCREEN_NAME))
 SCREEN_MANAGER.add_widget(PassCodeScreen(name='passCode'))
 SCREEN_MANAGER.add_widget(PauseScreen(name='pauseScene'))
 SCREEN_MANAGER.add_widget(AdminScreen(name=ADMIN_SCREEN_NAME))
