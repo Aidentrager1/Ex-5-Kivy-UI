@@ -26,6 +26,18 @@ from datetime import datetime
 from time import sleep
 import itertools
 
+import spidev
+import os
+from time import sleep
+import RPi.GPIO as GPIO
+from pidev.stepper import stepper
+from Slush.Devices import L6470Registers
+spi = spidev.SpiDev()
+
+# Init a 200 steps per revolution stepper on Port 0
+s0 = stepper(port=0, micro_steps=32, hold_current=20, run_current=20, accel_current=20, deaccel_current=20,
+             steps_per_unit=200, speed=4)
+
 
 time = datetime
 
@@ -66,11 +78,13 @@ class MainScreen(Screen):
         Function called on button touch event for button with id: testButton
         :return: None
         """
-        print("Callback from MainScreen.pressed()")
+        quit()
 
     def pressed2(self):
         self.count += 1
-        self.btn.text = str(self.count)
+        self.btn.text = str(s0.get_position_in_units())
+        s0.go_until_press(0, 10000)
+        print("moving motor")
 
 
     def admin_action(self):
@@ -83,8 +97,17 @@ class MainScreen(Screen):
     def motor_change(self):
         if self.motor_label.text == "off":
             self.motor_label.text = "on"
-        else:
+            s0.softStop()
+            sleep(.5)
+            s0.go_until_press(0, 20000)
+        elif self.motor_label.text == "on":
             self.motor_label.text = "off"
+            s0.softStop()
+            sleep(.5)
+            s0.goHome()
+    def motor_change_direction(self):
+        s0.go_until_press(1, 20000)
+
     def picture_action(self):
         SCREEN_MANAGER.transition.direction = 'left'
         SCREEN_MANAGER.current = 'joystick'
